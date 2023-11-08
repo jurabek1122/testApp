@@ -35,7 +35,7 @@ const BookCard: React.FC<any> = ({ book, setInfo, handleOpen, getBooks, setIsAdd
       if (!response?.ok) {
         throw new Error(`HTTP Error! Status: ${response?.status}`);
       }
-      toast.succes('Deleted successfully')
+      toast.success('Deleted successfully')
       getBooks()
     } catch (error) {
       console.log("Error:", error);
