@@ -1,95 +1,158 @@
-import Image from 'next/image'
-import styles from './page.module.css'
+"use client"
+import Navbar from "@/components/Navbar"
+import styled from "styled-components"
+import { useEffect, useState } from 'react'
+import { Books } from "@/interfaces"
+import BookCard from "@/components/BookCard"
+import { useRouter } from 'next/navigation'
+import CustomModal from "@/components/Modal"
+import { ToastContainer } from "react-toastify"
+import 'react-toastify/dist/ReactToastify.css';
+var CryptoJS = require("crypto-js");
 
-export default function Home() {
+const Home = () => {
+
+  const router = useRouter()
+  const [data, setData] = useState<Books[]>([])
+  const [open, setOpen] = useState<boolean>(false);
+  const [inputValue, setInputValue] = useState<string>('')
+  const [info, setInfo] = useState<string>('')
+  const [status, setStatus] = useState<number>(0)
+  const [isAdd, setIsAdd] = useState<boolean>(true)
+  const handleOpen = () => {
+    setOpen(true)
+    setIsAdd(true)
+  };
+  const handleClose = () => setOpen(false);
+  const getBooks = async () => {
+    const res = 'GET' + `/books${inputValue?.length > 2 ? `/${inputValue}` : ''}` + `${localStorage.getItem('key')}`
+    const token = CryptoJS.MD5(res).toString()
+    try {
+      const response = await fetch(
+        `https://0001.uz/books${inputValue?.length > 2 ? `/${inputValue}` : ''}`,
+        {
+          headers: {
+            Key: `${localStorage.getItem('name')}`,
+            Sign: token
+          },
+        }
+      );
+      if (!response?.ok) {
+        throw new Error(`HTTP Error! Status: ${response?.status}`);
+      }
+      const responseData = await response.json();
+      setData(responseData?.data)
+    } catch (error) {
+      console.log("Error:", error);
+    }
+  }
+
+  useEffect(() => {
+    if(!localStorage.getItem('name')) {
+      router.push('/login')
+    }
+  }, [])
+  useEffect(() => {
+    getBooks()
+  }, [inputValue])
+
   return (
-    <main className={styles.main}>
-      <div className={styles.description}>
-        <p>
-          Get started by editing&nbsp;
-          <code className={styles.code}>src/app/page.tsx</code>
-        </p>
+    <Container>
+      <Navbar />
+      <Top>
+        <h1>You’ve got <span>7 book</span></h1>
         <div>
-          <a
-            href="https://vercel.com?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            By{' '}
-            <Image
-              src="/vercel.svg"
-              alt="Vercel Logo"
-              className={styles.vercelLogo}
-              width={100}
-              height={24}
-              priority
-            />
-          </a>
+          <input 
+            placeholder="Enter at least 3 letters ..." 
+            value={inputValue}
+            onChange={(e) => setInputValue(e.target.value)}
+          />
+            <CustomModal info={info} status={status} isAdd={isAdd} setStatus={setStatus} setInfo={setInfo} handleOpen={handleOpen} handleClose={handleClose} open={open} />
         </div>
-      </div>
-
-      <div className={styles.center}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js Logo"
-          width={180}
-          height={37}
-          priority
-        />
-      </div>
-
-      <div className={styles.grid}>
-        <a
-          href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Docs <span>-&gt;</span>
-          </h2>
-          <p>Find in-depth information about Next.js features and API.</p>
-        </a>
-
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Learn <span>-&gt;</span>
-          </h2>
-          <p>Learn about Next.js in an interactive course with&nbsp;quizzes!</p>
-        </a>
-
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Templates <span>-&gt;</span>
-          </h2>
-          <p>Explore the Next.js 13 playground.</p>
-        </a>
-
-        <a
-          href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Deploy <span>-&gt;</span>
-          </h2>
-          <p>
-            Instantly deploy your Next.js site to a shareable URL with Vercel.
-          </p>
-        </a>
-      </div>
-    </main>
+      </Top>
+      <Title>Your task today</Title>
+      <Books>
+        {data?.map((item, i) => <BookCard book={item} key={i} setIsAdd={setIsAdd} setInfo={setInfo} handleOpen={handleOpen} setStatus={setStatus} getBooks={getBooks} />)}
+      </Books>
+      <ToastContainer
+        position="top-right"
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="light"
+      />
+    </Container>
   )
 }
+
+export default Home
+
+const Container = styled.div`
+  width: 100%;
+  height: 100vh;
+  background-size: cover;
+  padding: 0 100px;
+`
+const Top = styled.div`
+  display: flex;
+  justify-content: space-between;
+  h1 {
+    color: #FEFEFE;
+    font-family: Mulish;
+    font-size: 36px;
+    font-style: normal;
+    font-weight: 700;
+    line-height: normal;
+    span {
+      color: #6200EE;
+    }
+  }
+  div {
+    display: flex;
+    gap: 24px;
+    input {
+      display: flex;
+      height: 47px;
+      width: 320px;
+      padding: 14px 16px;
+      align-items: center;
+      gap: 16px;
+      align-self: stretch;
+      border-radius: 6px;
+      border: 1px solid #EBEBEB;
+      background: #FEFEFE;
+    }
+    button {
+      display: flex;
+      padding: 10px 24px;
+      justify-content: center;
+      align-items: center;
+      gap: 12px;
+      border-radius: 4px;
+      background: #6200EE;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+  }
+`
+const Title = styled.p`
+  color: #FEFEFE;
+  font-family: Mulish;
+  font-size: 20px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: normal;
+`
+const Books = styled.div`
+  width: 100%;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 24px;
+  margin-top: 36px;
+`
