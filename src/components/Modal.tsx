@@ -63,14 +63,13 @@ const CustomModal: React.FC<ModalProps> = ({ info, status, isAdd, setInfo, handl
         );
         if (!response?.ok) {
           throw new Error(`HTTP Error! Status: ${response?.status}`);
-        toast.success('Something went wrong')
 
         }
         const responseData = await response.json();
         if(isAdd) {
-            toast.success('Added Succesfully')
+            toast.success('Added Succesfully!')
         } else {
-            toast.success('Updated Succesfully')
+            toast.success('Updated Succesfully!')
         }
         if(responseData?.isOk) {
             handleClose()
@@ -79,7 +78,7 @@ const CustomModal: React.FC<ModalProps> = ({ info, status, isAdd, setInfo, handl
         }
       } catch (error) {
         console.log("Error:", error);
-        toast.error('Something went wrong')
+        toast.error('Something went wrong!')
       }
   }
 
