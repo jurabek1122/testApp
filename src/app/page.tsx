@@ -44,7 +44,7 @@ const Home = () => {
       setData(responseData?.data)
     } catch (error) {
       console.log("Error:", error);
-    }
+    } 
   }
 
   useEffect(() => {

@@ -34,14 +34,40 @@ const Login = () => {
       "key":      username,
       "secret":   password
     }
-    let res = '/signup' + 'POST' +  JSON.stringify(data) + password
-    
-      if(CryptoJS.MD5(res).toString()?.length > 0) {
-        localStorage.setItem('key', password)
-        localStorage.setItem('name', username)
-
+    let res = 'GET' + '/myself' + password
+    let sign = CryptoJS.MD5(res).toString()
+    try {
+      const response = await fetch(
+        `https://0001.uz/myself`,
+        {
+          method: `GET`,
+          headers: {
+            Key: username,
+            Sign: sign
+          }
+        }
+      );
+      if (!response?.ok) {
+        throw new Error(`HTTP Error! Status: ${response?.status}`);
+      }
+      const responseData = await response.json();
+      
+      if(responseData?.isOk) {
+        localStorage.setItem('key', responseData?.data?.secret)
+        localStorage.setItem('name', responseData?.data?.key)
         router.push('/')
       }
+      
+    } catch (error) {
+      console.log("Error:", error);
+    }
+
+      // if(CryptoJS.MD5(res).toString()?.length > 0) {
+      //   localStorage.setItem('key', password)
+      //   localStorage.setItem('name', username)
+
+      //   router.push('/')
+      // }
     
   }
   return (

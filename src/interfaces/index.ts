@@ -9,23 +9,18 @@ export interface LoginInfos {
     username: string,
     password: string
 }
-
-export interface Book {
-    author: string
-    cover: string,
-    id: number,
-    isbn: string,
-    pages: number,
-    published: number,
-    title: string
-}
 export interface SBook {
-    author: string
+    author: string,
     cover: string,
     isbn: string,
     published: number,
     title: string
 }
+export interface Book extends SBook {
+    id: number,
+    pages: number,
+}
+
 
 export interface Books {
     book: Book,
